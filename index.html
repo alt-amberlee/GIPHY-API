@@ -10,21 +10,14 @@
 
 <body>
     <!-- Before you can make any part of your site work, you need to create an array of strings, each one related to a topic that interests you. Save it to a variable called topics.
-
 We chose animals for our theme, but you can make a list to your own liking.
-
 Your app should take the topics in this array and create buttons in your HTML.
-
 Try using a loop that appends a button for each string in the array.
-
 When the user clicks on a button, the page should grab 10 static, non-animated gif images from the GIPHY API and place them on the page.
 When the user clicks one of the still GIPHY images, the gif should animate. If the user clicks the gif again, it should stop playing.
-
 Under every gif, display its rating (PG, G, so on).
-
 This data is provided by the GIPHY API.
 Only once you get images displaying with button presses should you move on to the next step.
-
 Add a form to your page that takes a value from a user input box and adds it to your topics array. Then make a function call that takes each topic in the array and remakes the buttons on the page. -->
 
 
@@ -49,78 +42,66 @@ Add a form to your page that takes a value from a user input box and adds it to 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript">
         var moods = ["Happy", "Sad", "Laughing", "Crying"];
-
-
         $(document).on("click", ".mood", function() {
             console.log("hello");
-
             var mood = $(this).attr("data-mood");
-
             console.log(mood);
-
             var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
-
                 mood + "&api_key=F6P6Kh1JNT4QZKXP2vkE9VSFOwQhx60X&limit=10";
-
             $.ajax({
                     url: queryURL,
                     method: "GET"
                 })
                 .then(function(response) {
-
                     var results = response.data;
-
                     for (var i = 0; i < results.length; i++) {
-
                         var gifDiv = $("<div>");
-
                         var rating = results[i].rating;
-
                         var p = $("<p>").text("Rating: " + rating);
-
                         var moodImage = $("<img>");
-
                         moodImage.attr("src", results[i].images.fixed_height.url);
-
+                        moodImage.attr("data-animate", results[i].images.fixed_height.url);
+                        moodImage.attr("data-still", results[i].images.fixed_height_still.url);
+                        moodImage.attr("data-state", "animate");
+                        moodImage.addClass("gif");
                         gifDiv.prepend(p);
-
                         gifDiv.prepend(moodImage);
-
                         $("#gifs-appear-here").prepend(gifDiv);
-
                     }
                 });
         });
 
         function renderButtons() {
-
             $("#buttons-display").empty();
-
             for (var i = 0; i < moods.length; i++) {
-
                 var newMood = $("<button>")
                     .addClass("mood")
                     .attr("data-mood", moods[i])
                     .text(moods[i]);
-
                 $("#buttons-display").append(newMood);
             }
         }
-
         $("#mood-button").on("click", function(event) {
-
             event.preventDefault();
-
             var newMood = $("#mood-input").val().trim();
             console.log(newMood);
-
             moods.push(newMood);
-
             renderButtons();
-
         });
-
         renderButtons();
+
+        $(document).on("click", ".gif", function() {
+
+            var state = $(this).attr("data-state");
+
+            if (state === "still") {
+                $(this).attr("src", $(this).attr("data-animate"));
+                $(this).attr("data-state", "animate");
+            } else {
+                $(this).attr("src", $(this).attr("data-still"));
+                $(this).attr("data-state", "still");
+            }
+        });
     </script>
 </body>
 
